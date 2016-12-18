@@ -1,0 +1,3 @@
+References:
+To better understand how to integrate MinMaxScaler into Pipeline
+http://stackoverflow.com/questions/36584873/python-sklearn-order-of-pipeline-operation-with-minmaxscaler-and-svc
