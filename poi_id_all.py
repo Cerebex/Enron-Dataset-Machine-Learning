@@ -21,7 +21,7 @@ from tester import dump_classifier_and_data
 # I chose to use 'from_this_person_to_poi' email count since I believe those who sent more emails to POI likely
 # had more to do with the fraud.  
 
-features_list = ['poi','poi','fraction_to_poi', 
+features_list = ['poi','fraction_to_poi', 
                 'fraction_from_poi', 'fraction_bonus_salary',
                 'fraction_total_stock_value_salary'    ] # You will need to use more features
 
@@ -118,7 +118,18 @@ labels, features = targetFeatureSplit(data)
 # Change SVC(kernel, C, gamma)
 # Try rbf nernel with C (say, 10.0, 100., 1000., and 10000.)
 
+# from sklearn import svm, grid_search
+# parameters = {'kernel':('linear', 'rbf'), 'C':[.1, 1, 1000000], 'tol':[1e-6, 1e6]}
+# svr = svm.SVC()
+# clf = grid_search.GridSearchCV(svr, parameters)
 
+
+# print "fitting"
+# clf.fit(features_train, labels_train)
+# print "done done"
+
+
+# Try out PCA with decision
 
 # Works
 # from sklearn import tree
@@ -229,7 +240,7 @@ pipe.fit(features_train, labels_train)
 
 
 from sklearn import svm, grid_search
-parameters = {'kernel':('linear', 'rbf'), 'C':[.1, 1, 10]}
+parameters = {'kernel':('linear', 'rbf'), 'C':[.1, 1, 1000000], 'tol':[1e-6, 1e6]}
 svr = svm.SVC()
 clf = grid_search.GridSearchCV(svr, parameters)
 
