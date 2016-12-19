@@ -21,9 +21,9 @@ from tester import dump_classifier_and_data
 # I chose to use 'from_this_person_to_poi' email count since I believe those who sent more emails to POI likely
 # had more to do with the fraud.  
 
-features_list = ['poi','salary', 'bonus', 'total_stock_value', 
-                    'from_this_person_to_poi', 'fraction_to_poi', 
-                    'fraction_from_poi','fraction_total_stock_value_salary'  ] # You will need to use more features
+features_list = ['poi','poi','fraction_to_poi', 
+                'fraction_from_poi', 'fraction_bonus_salary',
+                'fraction_total_stock_value_salary'    ] # You will need to use more features
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -192,8 +192,8 @@ features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
 # To train faster:
-features_train = features_train[:len(features_train)/5] 
-labels_train = labels_train[:len(labels_train)/5] 
+# features_train = features_train[:len(features_train)] 
+# labels_train = labels_train[:len(labels_train)] 
 
 
 
@@ -217,13 +217,13 @@ labels_train = labels_train[:len(labels_train)/5]
 # Access data enron_data["LASTNAME FIRSTNAME"]["feature_name"], enron_data["LASTNAME FIRSTNAME MIDDLEINITIAL"]["feature_name"]
 # print enron_data["COLWELL WESLEY"]["from_this_person_to_poi"]
 
-n_components = 6
+n_components = 2
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 
-estimators = [('reduce_dim', PCA(n_components=n_components)), ('scale', MinMaxScaler()), ('clf', SVC())]
+estimators = [('reduce_dim', PCA(n_components=n_components)), ('clf', SVC())]
 pipe = Pipeline(estimators)
 pipe.fit(features_train, labels_train)
 
