@@ -1,3 +1,5 @@
 References:
 To better understand how to integrate MinMaxScaler into Pipeline
 http://stackoverflow.com/questions/36584873/python-sklearn-order-of-pipeline-operation-with-minmaxscaler-and-svc
+
+http://scikit-learn.org/stable/tutorial/statistical_inference/putting_together.html
