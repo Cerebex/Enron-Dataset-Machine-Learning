@@ -21,8 +21,9 @@ from tester import dump_classifier_and_data
 # I chose to use 'from_this_person_to_poi' email count since I believe those who sent more emails to POI likely
 # had more to do with the fraud.  
 
-features_list = ['poi', 'fraction_bonus_salary', 'fraction_from_poi', 'fraction_to_poi', 
-'fraction_total_stock_value_salary' ]  
+features_list = ['poi',
+'fraction_bonus_salary', 'fraction_from_poi', 'fraction_to_poi', 
+'fraction_total_stock_value_salary', 'from_poi_to_this_person'] 
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -34,6 +35,9 @@ with open("final_project_dataset.pkl", "r") as data_file:
 
 ### Task 2: Remove outliers
 data_dict.pop( "TOTAL", 0 )
+data_dict.pop( "THE TRAVEL AGENCY IN THE PARK", 0 )
+data_dict.pop( "LOCKHART EUGENE E", 0 )
+
 
 # ____________________________________________________________________________________________________________
 # ____________________________________________________________________________________________________________
@@ -68,15 +72,15 @@ def computeFraction( poi_messages, all_messages ):
         fraction = float(Decimal(poi_messages)/Decimal(all_messages))
 
     return fraction
-NaN = {}
+NaN_Percent = {}
 for name in data_dict:
     data_point = data_dict[name]
     for data_result in data_point:
         if data_point[data_result] == "NaN":
-            if data_result in NaN.keys():
-                NaN[data_result] += 1
+            if data_result in NaN_Percent.keys():
+                NaN_Percent[data_result] += 1
             else:
-                NaN[data_result] = 1
+                NaN_Percent[data_result] = 1
     salary = data_point["salary"]
     bonus = data_point["bonus"]
     total_stock_value = data_point['total_stock_value']
@@ -103,7 +107,20 @@ for name in data_dict:
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
-print NaN
+
+# Review dataset
+for data_name in NaN_Percent:
+    NaN_Percent[data_name] = (NaN_Percent[data_name]/146.0)*100.0
+
+import pandas as pd
+
+NaN_Percent = pd.DataFrame(NaN_Percent.items(), columns=['Name', 'Percent Missing'])
+NaN_Percent_sorted = NaN_Percent.sort("Percent Missing", ascending=True)
+print NaN_Percent_sorted.to_string(index=False)
+
+
+my_dataset_pandas = pd.DataFrame.from_dict(my_dataset,orient='index')
+my_dataset_pandas.to_csv('my_dataset_pandas.csv')
 
 
 ### Extract features and labels from dataset for local testing
@@ -128,11 +145,39 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.feature_selection import SelectKBest
+from sklearn.metrics import f1_score
 
 # # Gaussian Niave Bayes
 
-# clf = GaussianNB()
-# clf.fit(features_train, labels_train)
+
+# estimators = [('reduce_dim', PCA()), ("scale", MinMaxScaler()), ('svm', SVC())]
+# pipe = Pipeline(steps = estimators)
+# param_dict = [{'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
+#                     'svm__C' : [.1, 1., 1000000.],
+#                     'svm__tol' : [1.0e-6, 1.0e6], 
+#                     'svm__gamma' :[.1, 3., 13.],
+#                     'reduce_dim__n_components' : [2,3,4]}]
+
+# gs = GridSearchCV(pipe, param_dict, scoring='f1')
+# print "fitting"
+# gs.fit(features_train, labels_train)
+# clf = gs.best_estimator_
+# print clf
+# print "done"
+
+
+
+estimators = [('reduce_dim', PCA()) ,('NB', GaussianNB())]
+pipe = Pipeline(steps = estimators)
+param_dict = [{'reduce_dim__n_components' : [2,3,4]}]
+gs = GridSearchCV(pipe, 
+                  param_dict, scoring='f1')
+print "fitting"
+gs.fit(features_train, labels_train)
+clf = gs.best_estimator_
+print "done"
+
 
 #     Accuracy: 0.67327   Precision: 0.29730  Recall: 0.58450 F1: 0.39413 F2: 0.48986
 #     Total predictions: 11000    True positives: 1169    False positives: 2763   
@@ -144,18 +189,19 @@ from sklearn.tree import DecisionTreeClassifier
 
 # Support Vector Machine plus grid_search:
 
-estimators = [("scale", MinMaxScaler()), ('svm', SVC())]
-pipe = Pipeline(steps = estimators)
-param_dict = [{'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
-                    'svm__C' : [.1, 1., 100., 1000., 100000., 1000000.],
-                    'svm__tol' : [1.0e-6, 1.0e6], 
-                    'svm__gamma' :[.1, 3., 5., 10., 13., 20.]}]
-gs = GridSearchCV(pipe, 
-                  param_dict, scoring='f1')
-print "fitting"
-gs.fit(features_train, labels_train)
-clf = gs.best_estimator_
-print "done"
+# estimators = [("scale", MinMaxScaler()), ('svm', SVC())]
+# pipe = Pipeline(steps = estimators)
+# param_dict = [
+#                 {'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
+#                     'svm__C' : [.1, 1., 100., 1000., 100000., 1000000.],
+#                     'svm__tol' : [1.0e-6, 1.0e6], 
+#                     'svm__gamma' :[.1, 3., 5., 10., 13., 20.]}]
+# gs = GridSearchCV(pipe, 
+#                   param_dict, scoring='f1')
+# print "fitting"
+# gs.fit(features_train, labels_train)
+# clf = gs.best_estimator_
+# print "done"
 
 
 # RESULTS:
