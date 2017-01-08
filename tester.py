@@ -5,7 +5,7 @@
  
     requires that the algorithm, dataset, and features list
     be written to my_classifier.pkl, my_dataset.pkl, and
-    my_feature_list.pkl, respectively
+    my_feature_list.pkl, respectively# Support Vector Machine plus grid_search:
 
     that process should happen at the end of poi_id.py
 """
@@ -61,6 +61,7 @@ def test_classifier(clf, dataset, feature_list, folds = 1000):
                 break
     try:
         total_predictions = true_negatives + false_negatives + false_positives + true_positives
+        print total_predictions
         accuracy = 1.0*(true_positives + true_negatives)/total_predictions
         precision = 1.0*true_positives/(true_positives+false_positives)
         recall = 1.0*true_positives/(true_positives+false_negatives)
@@ -99,9 +100,7 @@ def main():
     ### load up student's classifier, dataset, and feature_list
     clf, dataset, feature_list = load_classifier_and_data()
     ### Run testing script
-    print "start"
     test_classifier(clf, dataset, feature_list)
-    print "done"
 
 if __name__ == '__main__':
     main()

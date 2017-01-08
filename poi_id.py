@@ -21,9 +21,20 @@ from tester import dump_classifier_and_data
 # I chose to use 'from_this_person_to_poi' email count since I believe those who sent more emails to POI likely
 # had more to do with the fraud.  
 
+# Feature List With Newly Created Features
 features_list = ['poi',
+'salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus', 
+'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses', 'exercised_stock_options', 
+'other', 'long_term_incentive', 'restricted_stock', 'director_fees', 'total_stock_value',
 'fraction_bonus_salary', 'fraction_from_poi', 'fraction_to_poi', 
-'fraction_total_stock_value_salary', 'from_poi_to_this_person'] 
+'fraction_total_stock_value_salary', 'from_poi_to_this_person', 'from_messages', 'from_this_person_to_poi' ] 
+
+# Feature List Without Newly Created Features
+# features_list = ['poi',
+# 'salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus', 
+# 'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses', 'exercised_stock_options', 
+# 'other', 'long_term_incentive', 'restricted_stock', 'director_fees', 'total_stock_value', 'from_poi_to_this_person',
+#  'from_messages', 'from_this_person_to_poi' ] 
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -108,19 +119,19 @@ for name in data_dict:
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
 
-# Review dataset
-for data_name in NaN_Percent:
-    NaN_Percent[data_name] = (NaN_Percent[data_name]/146.0)*100.0
+# # Review dataset
+# for data_name in NaN_Percent:
+#     NaN_Percent[data_name] = (NaN_Percent[data_name]/146.0)*100.0
 
-import pandas as pd
+# import pandas as pd
 
-NaN_Percent = pd.DataFrame(NaN_Percent.items(), columns=['Name', 'Percent Missing'])
-NaN_Percent_sorted = NaN_Percent.sort("Percent Missing", ascending=True)
-print NaN_Percent_sorted.to_string(index=False)
+# NaN_Percent = pd.DataFrame(NaN_Percent.items(), columns=['Name', 'Percent Missing'])
+# NaN_Percent_sorted = NaN_Percent.sort("Percent Missing", ascending=True)
+# print NaN_Percent_sorted.to_string(index=False)
 
 
-my_dataset_pandas = pd.DataFrame.from_dict(my_dataset,orient='index')
-my_dataset_pandas.to_csv('my_dataset_pandas.csv')
+# my_dataset_pandas = pd.DataFrame.from_dict(my_dataset,orient='index')
+# my_dataset_pandas.to_csv('my_dataset_pandas.csv')
 
 
 ### Extract features and labels from dataset for local testing
@@ -147,192 +158,15 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.metrics import f1_score
+import numpy as np
 
-# # Gaussian Niave Bayes
-
-
-# estimators = [('reduce_dim', PCA()), ("scale", MinMaxScaler()), ('svm', SVC())]
-# pipe = Pipeline(steps = estimators)
-# param_dict = [{'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
-#                     'svm__C' : [.1, 1., 1000000.],
-#                     'svm__tol' : [1.0e-6, 1.0e6], 
-#                     'svm__gamma' :[.1, 3., 13.],
-#                     'reduce_dim__n_components' : [2,3,4]}]
-
-# gs = GridSearchCV(pipe, param_dict, scoring='f1')
-# print "fitting"
-# gs.fit(features_train, labels_train)
-# clf = gs.best_estimator_
-# print clf
-# print "done"
-
-
-
-estimators = [('reduce_dim', PCA()) ,('NB', GaussianNB())]
+estimators = [('reduce_dim', SelectKBest()), ('NB', GaussianNB())]
 pipe = Pipeline(steps = estimators)
-param_dict = [{'reduce_dim__n_components' : [2,3,4]}]
-gs = GridSearchCV(pipe, 
+param_dict = [{'reduce_dim__k' : [6]}]
+clf = GridSearchCV(pipe, 
                   param_dict, scoring='f1')
-print "fitting"
-gs.fit(features_train, labels_train)
-clf = gs.best_estimator_
-print "done"
 
 
-#     Accuracy: 0.67327   Precision: 0.29730  Recall: 0.58450 F1: 0.39413 F2: 0.48986
-#     Total predictions: 11000    True positives: 1169    False positives: 2763   
-#     False negatives:  831   True negatives: 6237
-
-# [Finished in 1.4s]
-
-# ____________________________________________________________________________________________________________
-
-# Support Vector Machine plus grid_search:
-
-# estimators = [("scale", MinMaxScaler()), ('svm', SVC())]
-# pipe = Pipeline(steps = estimators)
-# param_dict = [
-#                 {'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
-#                     'svm__C' : [.1, 1., 100., 1000., 100000., 1000000.],
-#                     'svm__tol' : [1.0e-6, 1.0e6], 
-#                     'svm__gamma' :[.1, 3., 5., 10., 13., 20.]}]
-# gs = GridSearchCV(pipe, 
-#                   param_dict, scoring='f1')
-# print "fitting"
-# gs.fit(features_train, labels_train)
-# clf = gs.best_estimator_
-# print "done"
-
-
-# RESULTS:
-
-# Input Features :['poi', 'fraction_bonus_salary', 'fraction_from_poi', 
-# 'fraction_to_poi', 'fraction_total_stock_value_salary' ]  
-# Pipeline(steps=[('scale', MinMaxScaler(copy=True, feature_range=(0, 1))), 
-# ('svm', SVC(C=100000.0, cache_size=200, class_weight=None, coef0=0.0,
-#   decision_function_shape=None, degree=3, gamma=13.0, kernel='poly',
-#   max_iter=-1, probability=False, random_state=None, shrinking=True,
-#   tol=1e-06, verbose=False))])
-#     Accuracy: 0.81073   Precision: 0.47121  Recall: 0.33550 F1: 0.39194 F2: 0.35601
-#     Total predictions: 11000    True positives:  671    False positives:  753   
-#       False negatives: 1329   True negatives: 8247
-
-# Input Features: ['poi', 'from_poi_to_this_person', 'from_this_person_to_poi','salary', 'bonus','total_stock_value' ]  
-# # Pipeline(steps=[('scale', MinMaxScaler(copy=True, feature_range=(0, 1))), 
-# ('svm', SVC(C=1000.0, cache_size=200, class_weight=None, coef0=0.0,
-#   decision_function_shape=None, degree=3, gamma=20.0, kernel='poly',
-#   max_iter=-1, probability=False, random_state=None, shrinking=True,
-#   tol=1e-06, verbose=False))])
-#     Accuracy: 0.83629   Precision: 0.41512  Recall: 0.35700 F1: 0.38387 F2: 0.36728
-#     Total predictions: 14000    True positives:  714    
-# False positives: 1006   False negatives: 1286   True negatives: 10994
-
-# [Finished in 5742.9s]
-
-# ____________________________________________________________________________________________________________
-
-# Decision Tree
-
-# parameters = [{'criterion':['gini', 'entropy'], 'min_samples_split':[2, 3, 4, 5, 6, 10, 20, 30, 40], 
-# 'splitter':['best', 'random']}]
-# dtc = DecisionTreeClassifier()
-# gs = GridSearchCV(dtc, parameters, scoring = 'f1')
-# print "fitting"
-# gs.fit(features_train, labels_train)
-# clf = gs.best_estimator_
-# print "done"
-
-# RESULTS:
-# DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
-#             max_features=None, max_leaf_nodes=None,
-#             min_impurity_split=1e-07, min_samples_leaf=1,
-#             min_samples_split=5, min_weight_fraction_leaf=0.0,
-#             presort=False, random_state=None, splitter='random')
-#     Accuracy: 0.78155   Precision: 0.36413  Recall: 0.27000 F1: 0.31008 F2: 0.28472
-#     Total predictions: 11000    True positives:  540    False positives:  943   
-#       False negatives: 1460   True negatives: 8057
-
-# [Finished in 1.1s]
-
-# # Works better than grid search to create best precision and recall
-# clf = DecisionTreeClassifier(criterion = 'entropy', min_samples_split = 2, splitter = 'random')
-
-# RESULTS:
-# DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
-#             max_features=None, max_leaf_nodes=None,
-#             min_impurity_split=1e-07, min_samples_leaf=1,
-#             min_samples_split=2, min_weight_fraction_leaf=0.0,
-#             presort=False, random_state=None, splitter='random')
-#     Accuracy: 0.76936   Precision: 0.36922  Recall: 0.37900 F1: 0.37404 F2: 0.37700
-#     Total predictions: 11000    True positives:  758    False positives: 1295   
-#       False negatives: 1242   True negatives: 7705
-
-# [Finished in 1.2s]
-
-
-# ____________________________________________________________________________________________________________
-
-# # ADABOOST
-
-# dt_stump = DecisionTreeClassifier(criterion = 'entropy', min_samples_split= 2, splitter = 'random')
-
-# clf = AdaBoostClassifier(base_estimator=dt_stump,
-#     algorithm="SAMME.R")
-
-# parameters = {'learning_rate':(1.5, 1., .5), 'n_estimators':[10, 20, 40, 60, 80, 100, 300, 600, 800]}
-# gs = GridSearchCV(clf, parameters, scoring='f1')
-# print "fitting"
-# gs.fit(features_train, labels_train)
-# clf = gs.best_estimator_
-# print "done"
-
-# RESULTS:
-# AdaBoostClassifier(algorithm='SAMME.R',
-#           base_estimator=DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
-#             max_features=None, max_leaf_nodes=None,
-#             min_impurity_split=1e-07, min_samples_leaf=1,
-#             min_samples_split=2, min_weight_fraction_leaf=0.0,
-#             presort=False, random_state=None, splitter='random'),
-#           learning_rate=1.5, n_estimators=300, random_state=None)
-#     Accuracy: 0.77709   Precision: 0.38290  Recall: 0.36950 F1: 0.37608 F2: 0.37210
-#     Total predictions: 11000    True positives:  739    False positives: 1191   
-#       False negatives: 1261   True negatives: 7809
-
-# [Finished in 3.5s]
-
-# ____________________________________________________________________________________________________________
-
-# PCA plus SVC with Gridsearch
-
-# estimators = [('reduce_dim', PCA()), ("scale", MinMaxScaler()), ('svm', SVC())]
-# pipe = Pipeline(steps = estimators)
-# param_dict = [{'svm__kernel' : ['rbf', 'poly', 'sigmoid'], 
-#                     'svm__C' : [.1, 1., 1000000.],
-#                     'svm__tol' : [1.0e-6, 1.0e6], 
-#                     'svm__gamma' :[.1, 3., 13.],
-#                     'reduce_dim__n_components' : [2,3,4]}]
-
-# gs = GridSearchCV(pipe, param_dict, scoring='f1')
-# print "fitting"
-# gs.fit(features_train, labels_train)
-# clf = gs.best_estimator_
-# print clf
-# print "done"
-
-
-# RESULTS:
-# Pipeline(steps=[('reduce_dim', PCA(copy=True, iterated_power='auto', n_components=4, random_state=None,
-#   svd_solver='auto', tol=0.0, whiten=False)), ('scale', MinMaxScaler(copy=True, feature_range=(0, 1))), 
-#   ('svm', SVC(C=1000000.0, cache_size=200, class_weight=None, coef0=0.0,
-#   decision_function_shape=None, degree=3, gamma=0.1, kernel='rbf',
-#   max_iter=-1, probability=False, random_state=None, shrinking=True,
-#   tol=1e-06, verbose=False))])
-#     Accuracy: 0.76164   Precision: 0.22815  Recall: 0.13050 F1: 0.16603 F2: 0.14272
-#     Total predictions: 11000    True positives:  261    False positives:  883   
-#       False negatives: 1739   True negatives: 8117
-
-# [Finished in 380.7s]
-# ____________________________________________________________________________________________________________
 # ____________________________________________________________________________________________________________
 
 
