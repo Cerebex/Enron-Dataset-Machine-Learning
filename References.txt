@@ -3,3 +3,8 @@ To better understand how to integrate MinMaxScaler into Pipeline
 http://stackoverflow.com/questions/36584873/python-sklearn-order-of-pipeline-operation-with-minmaxscaler-and-svc
 
 http://scikit-learn.org/stable/tutorial/statistical_inference/putting_together.html
+
+http://stackoverflow.com/questions/17330139/python-printing-a-dictionary-as-a-horizontal-table-with-headers
+
+Best Parameters to change for svm
+http://scikit-learn.org/stable/auto_examples/svm/plot_rbf_parameters.html
