@@ -84,14 +84,21 @@ def computeFraction( poi_messages, all_messages ):
 
     return fraction
 NaN_Percent = {}
+NaN_POI_Percent = {}
 for name in data_dict:
     data_point = data_dict[name]
     for data_result in data_point:
+        if data_result not in NaN_POI_Percent.keys():
+            NaN_POI_Percent[data_result] = 0
+        if data_result not in NaN_Percent.keys():
+            NaN_Percent[data_result] = 0
+    for data_result in data_point:
         if data_point[data_result] == "NaN":
-            if data_result in NaN_Percent.keys():
                 NaN_Percent[data_result] += 1
-            else:
-                NaN_Percent[data_result] = 1
+    if data_point['poi'] == 1:
+        for data_result in data_point:
+            if data_point[data_result] == "NaN":
+                    NaN_POI_Percent[data_result] += 1
     salary = data_point["salary"]
     bonus = data_point["bonus"]
     total_stock_value = data_point['total_stock_value']
@@ -121,13 +128,22 @@ my_dataset = data_dict
 
 # # Review dataset
 # for data_name in NaN_Percent:
-#     NaN_Percent[data_name] = (NaN_Percent[data_name]/146.0)*100.0
+#     NaN_Percent[data_name] = (NaN_Percent[data_name]/143.0)*100.0
+# for data_name in NaN_POI_Percent:
+#     NaN_POI_Percent[data_name] = (NaN_POI_Percent[data_name]/143.0)*100.0    
 
 # import pandas as pd
 
 # NaN_Percent = pd.DataFrame(NaN_Percent.items(), columns=['Name', 'Percent Missing'])
 # NaN_Percent_sorted = NaN_Percent.sort("Percent Missing", ascending=True)
 # print NaN_Percent_sorted.to_string(index=False)
+
+# NaN_POI_Percent = pd.DataFrame(NaN_POI_Percent.items(), columns=['Name', 'Percent Missing'])
+# NaN_POI_Percent_sorted = NaN_POI_Percent.sort("Percent Missing", ascending=True)
+# print NaN_POI_Percent_sorted.to_string(index=False)
+
+# NaN_POI_Percent_sorted.to_csv('NaN_POI_Percent_sorted.csv')
+# NaN_Percent_sorted.to_csv('NaN_Percent_sorted.csv')
 
 
 # my_dataset_pandas = pd.DataFrame.from_dict(my_dataset,orient='index')
@@ -144,9 +160,9 @@ labels, features = targetFeatureSplit(data)
 
 ### Task 4: Employ and tune a classifier
 
-from sklearn.model_selection import train_test_split
-features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+# from sklearn.model_selection import train_test_split
+# features_train, features_test, labels_train, labels_test = \
+#     train_test_split(features, labels, test_size=0.3, random_state=42)
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
