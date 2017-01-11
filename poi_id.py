@@ -6,6 +6,12 @@ sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+from sklearn.feature_selection import SelectKBest
+from sklearn.metrics import f1_score
+import numpy as np
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -164,23 +170,12 @@ labels, features = targetFeatureSplit(data)
 # features_train, features_test, labels_train, labels_test = \
 #     train_test_split(features, labels, test_size=0.3, random_state=42)
 
-from sklearn.naive_bayes import GaussianNB
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.feature_selection import SelectKBest
-from sklearn.metrics import f1_score
-import numpy as np
-
 estimators = [('reduce_dim', SelectKBest()), ('NB', GaussianNB())]
 pipe = Pipeline(steps = estimators)
 param_dict = [{'reduce_dim__k' : [6]}]
 clf = GridSearchCV(pipe, 
                   param_dict, scoring='f1')
+
 
 
 # ____________________________________________________________________________________________________________

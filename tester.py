@@ -61,7 +61,6 @@ def test_classifier(clf, dataset, feature_list, folds = 1000):
                 break
     try:
         total_predictions = true_negatives + false_negatives + false_positives + true_positives
-        print total_predictions
         accuracy = 1.0*(true_positives + true_negatives)/total_predictions
         precision = 1.0*true_positives/(true_positives+false_positives)
         recall = 1.0*true_positives/(true_positives+false_negatives)
